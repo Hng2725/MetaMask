@@ -1,15 +1,23 @@
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 const { Web3 } = require("web3");
 
 const web3 = new Web3(process.env.ARBITRUM_SEPOLIA_RPC_URL);
 
 // Địa chỉ và khóa riêng
 const senderPrivateKey = process.env.PRIVATE_KEY;
-const senderAddress = console.log("PRIVATE_KEY =", senderPrivateKey);
-web3.eth.accounts.privateKeyToAccount(senderPrivateKey).address;
+console.log("PRIVATE_KEY from env:", senderPrivateKey);
+console.log("Type of PRIVATE_KEY:", typeof senderPrivateKey);
+
+if (!senderPrivateKey) {
+  console.error("PRIVATE_KEY is not set in environment variables");
+  process.exit(1);
+}
+
+const senderAddress =
+  web3.eth.accounts.privateKeyToAccount(senderPrivateKey).address;
 
 const receiverAddress = "0xb128B78b8F075f0e7c70e74209270Bc173F7dEF5";
-const tokenAddress = "0x9B70962C7CA719754B4A611D3b44001EB5E589C4";
+const tokenAddress = "0xFEE753b2a49e686c18E7183a356011c964f3A750";
 
 const abi = [
   {
@@ -45,12 +53,12 @@ async function transferToken(amount) {
       from: senderAddress,
       to: tokenAddress,
       nonce: nonce,
-      gas: gas,
       gasPrice: gasPrice,
       data: data,
+      gasLimit: gas,
     };
 
-    console.log("🚀 TX:", tx);
+    console.log("TX:", tx);
 
     const signedTx = await web3.eth.accounts.signTransaction(
       tx,
